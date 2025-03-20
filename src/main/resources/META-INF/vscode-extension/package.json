@@ -1,0 +1,93 @@
+{
+  "name": "spring-rest-api-detector",
+  "displayName": "Spring REST API Detector",
+  "description": "检测Spring项目中的REST接口路径，支持搜索定位代码位置",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:java"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "spring-rest-api-detector.detectApis",
+        "title": "检测REST API路径"
+      },
+      {
+        "command": "spring-rest-api-detector.searchApiPath",
+        "title": "搜索REST API路径"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "spring-rest-api-detector.searchApiPath",
+        "key": "ctrl+shift+a",
+        "mac": "cmd+shift+a",
+        "when": "editorTextFocus"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "spring-rest-api-explorer",
+          "title": "Spring REST API",
+          "icon": "resources/api-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "spring-rest-api-explorer": [
+        {
+          "id": "apiExplorer",
+          "name": "API路径列表"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Spring REST API Detector",
+      "properties": {
+        "springRestApiDetector.searchShortcut": {
+          "type": "string",
+          "default": "ctrl+shift+a",
+          "description": "触发API搜索的快捷键"
+        },
+        "springRestApiDetector.includePatterns": {
+          "type": "array",
+          "default": ["**/*.java"],
+          "description": "要扫描的文件模式"
+        },
+        "springRestApiDetector.excludePatterns": {
+          "type": "array",
+          "default": ["**/test/**"],
+          "description": "要排除的文件模式"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.60.0",
+    "@types/glob": "^7.1.4",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "14.x",
+    "eslint": "^7.32.0",
+    "glob": "^7.1.7",
+    "mocha": "^9.1.1",
+    "typescript": "^4.4.3",
+    "vscode-test": "^1.6.1"
+  }
+} 
