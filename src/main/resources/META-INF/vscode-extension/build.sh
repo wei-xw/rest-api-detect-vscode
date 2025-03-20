@@ -2,7 +2,7 @@
 
 set -e
 
-echo "开始构建Spring REST API Detector插件..."
+echo "开始构建Spring Rest Api Detector插件..."
 
 # 确保在正确的目录
 cd "$(dirname "$0")"

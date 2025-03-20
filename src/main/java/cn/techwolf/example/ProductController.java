@@ -27,6 +27,16 @@ public class ProductController {
     public String getProductById(@PathVariable Long id) {
         return "This would return product with ID: " + id;
     }
+      /**
+     * 根据ID获取商品
+     * @param id 商品ID
+     * @return 商品信息
+     */
+    @GetMapping("/start/")
+    public String start(@PathVariable Long id) {
+        return "This would return product with ID: " + id;
+    }
+
 
     /**
      * 创建新商品

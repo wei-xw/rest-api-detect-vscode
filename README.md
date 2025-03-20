@@ -1,4 +1,4 @@
-# Spring REST API Detector
+# Spring Rest Api Detector
 
 一个用于检测和搜索Spring Java项目中REST API接口路径的VSCode插件。
 

@@ -223,9 +223,13 @@ class RestApiDetector {
   }
 }
 
+// 添加一个全局缓存
+let apiCache: RestApiInfo[] = [];
+let isApiCacheInitialized = false;
+
 // 扩展激活函数
 export function activate(context: vscode.ExtensionContext) {
-  console.log('Spring REST API Detector extension is now active!');
+  console.log('Spring Rest Api Detector extension is now active!');
   
   // 创建API检测器实例
   const apiDetector = new RestApiDetector();
@@ -235,6 +239,34 @@ export function activate(context: vscode.ExtensionContext) {
   
   // 注册API树视图
   vscode.window.registerTreeDataProvider('apiExplorer', apiProvider);
+
+  // 初始化缓存的函数
+  async function initializeApiCache() {
+    if (!isApiCacheInitialized) {
+      apiCache = await apiDetector.scanWorkspace();
+      isApiCacheInitialized = true;
+      // 更新树视图
+      apiProvider.refresh(apiCache);
+    }
+    return apiCache;
+  }
+  
+  // 监听文件变更，更新缓存
+  const fileWatcher = vscode.workspace.createFileSystemWatcher('**/*.java');
+  context.subscriptions.push(
+    fileWatcher.onDidChange(async () => {
+      apiCache = await apiDetector.scanWorkspace();
+      apiProvider.refresh(apiCache);
+    }),
+    fileWatcher.onDidCreate(async () => {
+      apiCache = await apiDetector.scanWorkspace();
+      apiProvider.refresh(apiCache);
+    }),
+    fileWatcher.onDidDelete(async () => {
+      apiCache = await apiDetector.scanWorkspace();
+      apiProvider.refresh(apiCache);
+    })
+  );
 
   // 注册命令：检测REST API
   let detectApisCommand = vscode.commands.registerCommand('spring-rest-api-detector.detectApis', async () => {
@@ -247,14 +279,15 @@ export function activate(context: vscode.ExtensionContext) {
       progress.report({ increment: 0 });
       
       try {
-        // 执行扫描
-        const apis = await apiDetector.scanWorkspace();
+        // 执行扫描并更新缓存
+        apiCache = await apiDetector.scanWorkspace();
+        isApiCacheInitialized = true;
         
         // 更新视图
-        apiProvider.refresh(apis);
+        apiProvider.refresh(apiCache);
         
         // 显示结果
-        vscode.window.showInformationMessage(`检测到 ${apis.length} 个REST API接口`);
+        vscode.window.showInformationMessage(`检测到 ${apiCache.length} 个REST API接口`);
       } catch (error) {
         vscode.window.showErrorMessage(`检测API出错: ${error}`);
       }
@@ -263,10 +296,21 @@ export function activate(context: vscode.ExtensionContext) {
     });
   });
 
-  // 注册命令：搜索API路径
+  // 注册命令：搜索API路径 - 使用缓存版本
   let searchApiPathCommand = vscode.commands.registerCommand('spring-rest-api-detector.searchApiPath', async () => {
-    // 获取所有API信息
-    const apis = await apiDetector.scanWorkspace();
+    // 确保缓存已初始化
+    if (!isApiCacheInitialized) {
+      vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: "首次初始化API缓存...",
+        cancellable: false
+      }, async () => {
+        await initializeApiCache();
+      });
+    }
+    
+    // 使用缓存的API信息
+    const apis = apiCache;
     
     // 构建快速选择项
     const quickPickItems = apis.map(api => ({
@@ -299,8 +343,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(searchApiPathCommand);
   context.subscriptions.push(openApiDefinitionCommand);
   
-  // 启动时自动检测APIs
-  vscode.commands.executeCommand('spring-rest-api-detector.detectApis');
+  // 启动时初始化API缓存
+  initializeApiCache();
 }
 
 // 打开API定义文件并跳转到指定行
@@ -326,5 +370,5 @@ async function openApiDefinition(api: RestApiInfo): Promise<void> {
 
 // 扩展停用函数
 export function deactivate() {
-  console.log('Spring REST API Detector extension is now deactivated!');
+  console.log('Spring Rest Api Detector extension is now deactivated!');
 } 

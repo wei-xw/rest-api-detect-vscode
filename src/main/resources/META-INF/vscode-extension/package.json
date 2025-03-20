@@ -1,8 +1,9 @@
 {
   "name": "spring-rest-api-detector",
-  "displayName": "Spring REST API Detector",
+  "displayName": "Spring Rest Api Detector",
   "description": "检测Spring项目中的REST接口路径，支持搜索定位代码位置",
-  "version": "0.0.1",
+  "version": "0.0.3",
+  "publisher": "sanwei",
   "engines": {
     "vscode": "^1.60.0"
   },
@@ -10,6 +11,10 @@
     "Programming Languages",
     "Other"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wei-xw/rest-api-detect-vscode.git"
+  },
   "activationEvents": [
     "onLanguage:java"
   ],
@@ -51,7 +56,7 @@
       ]
     },
     "configuration": {
-      "title": "Spring REST API Detector",
+      "title": "Spring Rest Api Detector",
       "properties": {
         "springRestApiDetector.searchShortcut": {
           "type": "string",
@@ -60,12 +65,16 @@
         },
         "springRestApiDetector.includePatterns": {
           "type": "array",
-          "default": ["**/*.java"],
+          "default": [
+            "**/*.java"
+          ],
           "description": "要扫描的文件模式"
         },
         "springRestApiDetector.excludePatterns": {
           "type": "array",
-          "default": ["**/test/**"],
+          "default": [
+            "**/test/**"
+          ],
           "description": "要排除的文件模式"
         }
       }
